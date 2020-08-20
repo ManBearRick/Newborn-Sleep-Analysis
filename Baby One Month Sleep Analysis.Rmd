@@ -1,0 +1,160 @@
+---
+title: "Baby One Month Sleep Analysis"
+author: "Rick Ortega"
+date: "6/11/2020"
+output: html_document
+---
+
+I became a father on October 14th 2019. That day, my life got better and worse at the same time. Nobody can prepare you for the loss of sleep that a newborn child brings. All babies are different, but one of the most glaring differences between pre-baby life and after-delivery life was that sleep becomes a commodity, something that is both rare and negotiable. Sleep for one parent often comes at the cost of the other. This sparked a curiosity in me. Surely a newborn is operating on instincts. If I could better understand those instincts and turn them in to actionable behaviors, I just might be able to get more sleep. Enter: data collection.
+
+I collected data for 30 days with one goal: to see if there is a correlation between simple inputs and outputs for baby sleep. I was looking for a relationship between sleep time, food time/amount, and minutes of sleep accumulated between "bed time" and "awake time". Nap times were taken either manually or gathered from the Nanit baby camera. 
+
+I did my analysis with R, using a combination of base R and tidyverse functions. This tutorial covers real-world data problems such as missing data and feature engineering. My goal here is that you both enjoy the analysis (despite the outcome) and understand some of the approaches necessary to converting raw data to acitonable insights. 
+
+
+
+## The Setup
+
+First, we must set the analysis up. For this project, my goal is to show the application of the Tidyverse functionality through 
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(chron)
+library(gridExtra)
+
+theme_set(theme_light())
+
+data <- read_csv("https://github.com/ManBearRick/Newborn-Sleep-Analysis/raw/master/newborn_sleep_data.csv",
+                 col_types = cols(wakeup_time = "c",
+                                  bed_time = "c",
+                                  last_nap_wake = "c")) %>%
+    mutate(days_old = difftime(mdy(Date), ymd("2019-10-14"), units = "days")) 
+
+data <- data %>% 
+    mutate(exp_week = cut(as.integer(data$days_old), breaks = c(-Inf, 141, 148, 155, 162, Inf),
+           labels = c("1","2", "3", "4", "5")))
+
+data[is.na(data$food_oz),]$food_oz <- mean(data$food_oz, na.rm = TRUE) %>% round(2)
+data[is.na(data$naptime_min),]$naptime_min <- mean(data$naptime_min, na.rm = TRUE) %>% round(0)
+data[is.na(data$wakes),]$wakes <- mean(data$wakes, na.rm = TRUE) %>% round(0)
+data[is.na(data$visits),]$visits <- mean(data$visits, na.rm = TRUE) %>% round(0)
+data[is.na(data$asleep_time),]$asleep_time <- mean(data$asleep_time, na.rm = TRUE) %>% round(0)
+
+data[!is.na(data$wakeup_time),]$wakeup_time <- parse_time(data$wakeup_time[!is.na(data$wakeup_time)])
+data[!is.na(data$bed_time),]$bed_time <- parse_time(data$bed_time[!is.na(data$bed_time)])
+data[!is.na(data$last_nap_wake),]$last_nap_wake <- parse_time(data$last_nap_wake[!is.na(data$last_nap_wake)])
+
+data[is.na(data$wakeup_time),]$wakeup_time <- mean(as.numeric(data[!is.na(data$wakeup_time),]$wakeup_time)) %>% round(0)
+data[is.na(data$bed_time),]$bed_time <- mean(as.numeric(data[!is.na(data$bed_time),]$bed_time)) %>% round(0)
+data[is.na(data$last_nap_wake),]$last_nap_wake <- mean(as.numeric(data[!is.na(data$last_nap_wake),]$last_nap_wake)) %>% round(0)
+
+
+data$wakeup_time <- as.integer(data$wakeup_time)
+data$bed_time <- as.integer(data$bed_time)
+data$last_nap_wake <- as.integer(data$last_nap_wake)
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+```{r}
+data %>%
+    ggplot(aes(x = days_old, y = asleep_time)) +
+    geom_line(size = 1.5)
+```
+
+
+```{r}
+data %>%
+    ggplot(aes(x = food_oz, asleep_time, fill = as.integer(days_old))) +
+    geom_bar(stat = "identity")
+```
+
+
+```{r}
+data %>%
+    ggplot(aes(x = days_old, y = food_oz)) +
+    geom_bar(stat = "identity", alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE)
+```
+
+
+
+
+```{r}
+data %>%
+    ggplot(aes(seconds_to_period(last_nap_wake), asleep_time)) +
+    geom_point() +
+    scale_x_time() +
+    geom_smooth(method = "lm", na.rm = TRUE, alpha = 0.1) +
+    ggtitle("Last Nap Wakeup") +
+    xlab("Last Nap Wakeup Time") +
+    ylab("Minutes Asleep")
+```
+
+
+
+```{r}
+p <- data %>%
+    ggplot(aes(wakeup_time, asleep_time)) +
+    geom_point() +
+    scale_x_time() +
+    geom_smooth(method = "lm", na.rm = TRUE, alpha = 0.1) +
+    ggtitle("Wakeup Time") +
+    xlab("Wakeup Time") +
+    ylab("Minutes Asleep")
+
+b <- data %>%
+    ggplot(aes(wakeup_time)) + 
+    geom_boxplot()
+```
+
+
+
+
+```{r}
+data %>%
+    group_by(exp_week) %>%
+    summarise(avg_sleep = mean(asleep_time)) %>%
+    mutate(exp_week = factor(exp_week)) %>%
+    ggplot(aes(exp_week, avg_sleep)) +
+    geom_bar(stat = "identity")
+```
+
+
+
+
+
+```{r}
+dd <- data %>%
+    group_by(exp_week) %>%
+    summarise(avg_sleep = mean(asleep_time))
+
+
+ggplot(dd, aes(exp_week, seconds_to_period(avg_sleep*60))) +
+    geom_bar(stat = "identity") + 
+    scale_y_time(limits = c(seconds_to_period(32480), seconds_to_period(34440))
+                 )
+    
+
+```
+
+
+
+
+
+```{r}
+
+```
+
