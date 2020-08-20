@@ -2,7 +2,7 @@
 title: "Baby One Month Sleep Analysis"
 author: "Rick Ortega"
 date: "6/11/2020"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 I became a father on October 14th 2019. That day, my life got better and worse at the same time. Nobody can prepare you for the loss of sleep that a newborn child brings. All babies are different, but one of the most glaring differences between pre-baby life and after-delivery life was that sleep becomes a commodity, something that is both rare and negotiable. Sleep for one parent often comes at the cost of the other. This sparked a curiosity in me. Surely a newborn is operating on instincts. If I could better understand those instincts and turn them in to actionable behaviors, I just might be able to get more sleep. Enter: data collection.
