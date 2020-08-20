@@ -5,17 +5,17 @@ date: "6/11/2020"
 output: rmarkdown::github_document
 ---
 
-I became a father on October 14th 2019. That day, my life got better and worse at the same time. Nobody can prepare you for the loss of sleep that a newborn child brings. All babies are different, but one of the most glaring differences between pre-baby life and after-delivery life was that sleep becomes a commodity, something that is both rare and negotiable. Sleep for one parent often comes at the cost of the other. This sparked a curiosity in me. Surely a newborn is operating on instincts. If I could better understand those instincts and turn them in to actionable behaviors, I just might be able to get more sleep. Enter: data collection.
+I became a father on October 14th 2019. Nobody can prepare you for the loss of sleep that your first newborn child brings. All babies are different, but one of the most glaring differences between pre-baby life and baby life is that sleep becomes a commodity, a rare gift. This sparked a curiosity in me. Are there any patterns to newborn sleep? Enter: data collection.
 
-I collected data for 30 days with one goal: to see if there is a correlation between simple inputs and outputs for baby sleep. I was looking for a relationship between sleep time, food time/amount, and minutes of sleep accumulated between "bed time" and "awake time". Nap times were taken either manually or gathered from the Nanit baby camera. 
+I collected data for 30 days with one goal: to see if there is a correlation between simple inputs and outputs for baby sleep. I was looking for a relationship between sleep time, food time/amount, and minutes of sleep accumulated between "bed time" and "awake time". Collection of nap time numbers were taken either manually or gathered from the Nanit baby camera. 
 
-I did my analysis with R, using a combination of base R and tidyverse functions. This tutorial covers real-world data problems such as missing data and feature engineering. My goal here is that you both enjoy the analysis (despite the outcome) and understand some of the approaches necessary to converting raw data to acitonable insights. 
+I did my analysis in R, using a combination of base R and Tidyverse principles. This tutorial covers some real-world data problems including missing data and feature engineering. My goal here is that you both enjoy the analysis (regardless of outcome) and understand some of the approaches necessary to converting raw data into insights. 
 
 
 
 ## The Setup
 
-First, we must set the analysis up. For this project, my goal is to show the application of the Tidyverse functionality through 
+First, we must set the analysis up.
 
 ```{r setup, include=FALSE}
 library(tidyverse)
